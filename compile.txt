@@ -1,0 +1,5 @@
+minify command: pyminify --output connector.py --rename-globals connector_source.py
+
+compile command: python -m nuitka --onefile --assume-yes-for-downloads --disable-console connector.py
+
+compile pyinstaller: pyinstaller --noconsole --icon=NONE --onefile connector.py
