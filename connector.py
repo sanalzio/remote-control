@@ -1,26 +1,113 @@
+#○--- Imports ---○#
+
+# import module for serial communication
 import serial
+
+# import module for listing serial ports
 import serial.tools.list_ports
-import keyboard
-ports=serial.tools.list_ports.comports()
-bports=[]
-p=None
+
+# import module for controlling mouse and keyboard
+from pyautogui import *
+
+# import module for system command calls
+from os import system as call
+
+#○--- Imports ---○#
+
+
+
+
+#○--- Main ---○#
+
+
+#○--- Detecting Bluetooth port ---○#
+
+# asign serial ports to variable
+ports = serial.tools.list_ports.comports()
+# create list for bluetooth ports
+bluetooth_ports = []
+# create variable for serial port
+port = None
+
+# print info
 print('Searching for serial port communication...')
-while len(bports)==0:
-    for(port,desc,hwid)in sorted(ports):
-        if'Bluetooth'in desc:bports.append(port);print(f"Detected {desc}")
-for port in bports:
-    for dp in bports:
-        if int(port[len(port)-1:])>int(dp[len(dp)-1:]):p=int(port[len(port)-1:])
+
+# while loop to detect bluetooth
+while len(bluetooth_ports) == 0:
+
+    # for loop to list serial ports
+    for (port, desc, hwid) in sorted(ports):
+
+        # if statement to detect bluetooth
+        if ('Bluetooth' in desc):
+
+            # add bluetooth port to list
+            bluetooth_ports.append(port)
+            # print info
+            print(f"Detected {desc}")
+
+# for loop to list bluetooth ports
+for this_port in bluetooth_ports:
+
+    # for loop to list bluetooth ports
+    for detected_port in bluetooth_ports:
+
+        # if statement to compare bluetooth ports
+        if int( this_port[ len(this_port) - 1 : ] ) > int( detected_port[ len(detected_port) - 1 : ] ):
+            # set port to bluetooth port
+            port = int(this_port[ len(this_port) - 1 : ])
+
+
+#○--- Detecting Bluetooth port ---○#
+
+
+
+# print info
+print(f"Using {port}")
+
+
+
+#○--- Listening Bluetooth port for commands ---○#
+
+# create infinite loop
 while True:
+
+    # try except block
     try:
-        with serial.Serial('COM'+str(p),9600,timeout=1)as ser:
+
+        # start serial communication
+        with serial.Serial('COM' + str(port), 9600, timeout = 1) as ser:
+
+            # while loop to read data
             while True:
-                line=ser.readline();con=str(line)[2:len(str(line))-5]
-                if len(str(line))!=3:
-                    if con=='1':keyboard.send('alt+tab')
-                    elif con=='2':keyboard.send('win+d')
-                    elif con=='3':keyboard.send('alt+f4')
-                    elif con=='4':keyboard.send('space')
-                    print(con)
-    except:
-        continue
+
+                # read data and convert to string
+                line = ser.readline()
+                content = str(line)[ 2 : len(str(line)) - 5 ]
+
+                # if statement to check if data is not empty
+                if len(str(line)) != 3:
+
+                    # if statement to check if data starts with $
+                    if content.startswith("$"):
+
+                        # execute system command
+                        call(content[1:])
+                        # print info
+                        print(" $ " + content[1:])
+
+                    else:
+
+                        # execute python code
+                        exec(content)
+                        # print info
+                        print(content)
+
+    except Exception as e:
+        print(e)
+
+
+#○--- Listening Bluetooth port for commands ---○#
+
+
+#○--- Main ---○#
